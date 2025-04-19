@@ -1,0 +1,70 @@
+
+[
+  {
+    "id": 1,
+    "name": "Fresh Vegetables Assortment",
+    "description": "A variety of fresh vegetables including carrots, broccoli, and peppers",
+    "quantity": "10 kg",
+    "expiry": "2025-04-25",
+    "location": "123 Main St, Downtown",
+    "donorId": 1,
+    "donorName": "Green Grocers",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
+    "createdAt": "2025-04-17T10:30:00Z"
+  },
+  {
+    "id": 2,
+    "name": "Bread Loaves",
+    "description": "Freshly baked whole grain bread loaves",
+    "quantity": "24 loaves",
+    "expiry": "2025-04-22",
+    "location": "456 Baker Ave, Eastside",
+    "donorId": 2,
+    "donorName": "Sunrise Bakery",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1582562124811-c09040d0a901",
+    "createdAt": "2025-04-18T09:15:00Z"
+  },
+  {
+    "id": 3,
+    "name": "Canned Goods",
+    "description": "Assorted canned foods including beans, corn, and soup",
+    "quantity": "50 cans",
+    "expiry": "2025-10-15",
+    "location": "789 Storage Rd, Warehouse District",
+    "donorId": 3,
+    "donorName": "Community Pantry",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1493962853295-0fd70327578a",
+    "createdAt": "2025-04-16T14:45:00Z"
+  },
+  {
+    "id": 4,
+    "name": "Fresh Fruit Box",
+    "description": "Mixed seasonal fruits including apples, oranges, and bananas",
+    "quantity": "15 kg",
+    "expiry": "2025-04-24",
+    "location": "321 Orchard Lane, Westside",
+    "donorId": 1,
+    "donorName": "Green Grocers",
+    "status": "reserved",
+    "image": "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1",
+    "createdAt": "2025-04-17T11:00:00Z",
+    "receiverId": 2,
+    "receiverName": "Hope Shelter"
+  },
+  {
+    "id": 5,
+    "name": "Rice Bags",
+    "description": "5kg bags of long-grain white rice",
+    "quantity": "10 bags",
+    "expiry": "2025-12-31",
+    "location": "555 Market St, Downtown",
+    "donorId": 4,
+    "donorName": "Global Foods",
+    "status": "available",
+    "image": "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
+    "createdAt": "2025-04-15T16:20:00Z"
+  }
+]

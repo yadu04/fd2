@@ -1,0 +1,53 @@
+
+[
+  {
+    "id": 1,
+    "name": "Green Grocers",
+    "email": "contact@greengrocers.com",
+    "phone": "555-123-4567",
+    "role": "donor",
+    "address": "123 Main St, Downtown",
+    "description": "Local grocery store committed to reducing food waste",
+    "joinDate": "2024-10-15"
+  },
+  {
+    "id": 2,
+    "name": "Hope Shelter",
+    "email": "info@hopeshelter.org",
+    "phone": "555-987-6543",
+    "role": "receiver",
+    "address": "456 Charity Ave, Eastside",
+    "description": "Community shelter providing meals for the homeless",
+    "joinDate": "2024-11-02"
+  },
+  {
+    "id": 3,
+    "name": "Community Pantry",
+    "email": "help@communitypantry.org",
+    "phone": "555-567-8901",
+    "role": "donor",
+    "address": "789 Storage Rd, Warehouse District",
+    "description": "Food bank collecting and distributing donations",
+    "joinDate": "2024-09-20"
+  },
+  {
+    "id": 4,
+    "name": "Global Foods",
+    "email": "donations@globalfoods.com",
+    "phone": "555-234-5678",
+    "role": "donor",
+    "address": "555 Market St, Downtown",
+    "description": "Supermarket chain with surplus inventory to donate",
+    "joinDate": "2024-12-05"
+  },
+  {
+    "id": 5,
+    "name": "Children's Center",
+    "email": "contact@childrenscenter.org",
+    "phone": "555-345-6789",
+    "role": "receiver",
+    "address": "222 Youth Way, Northside",
+    "description": "After-school program providing meals for underserved children",
+    "joinDate": "2024-10-28"
+  }
+]
