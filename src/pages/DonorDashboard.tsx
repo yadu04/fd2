@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DonationForm from "@/components/DonationForm";
 import FoodCard from "@/components/FoodCard";
+import DonorBadges from "@/components/DonorBadges";
 
 // Import mock data
 import mockFoodData from "@/data/foodData.json";
@@ -46,6 +47,13 @@ const DonorDashboard = () => {
             <p className="text-gray-600 mt-2">
               Manage your food donations and see the impact you're making.
             </p>
+          </div>
+          
+          <div className="mb-8">
+            <DonorBadges 
+              donationCount={myDonations.length} 
+              reviewScore={4.5} // This would come from actual reviews in a real app
+            />
           </div>
           
           <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
