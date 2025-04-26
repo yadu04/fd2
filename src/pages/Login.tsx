@@ -4,14 +4,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import userData from "@/data/userData.json";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("donor");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -20,17 +23,28 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Mock authentication - in a real app, this would be an API call
-    setTimeout(() => {
-      // For demo purposes, we'll accept any login credentials
-      // and direct the user to the donor dashboard
+    // Find user in our mock data
+    const user = userData.find(u => 
+      u.email === email && 
+      u.role === role // Check if role matches
+    );
+
+    if (user) {
+      // In a real app, we would verify the password here
       toast({
         title: "Login successful!",
         description: "Welcome back to FoodShareHub.",
       });
       setIsLoading(false);
-      navigate("/donor"); // Redirect to donor dashboard for demo
-    }, 1500);
+      navigate(`/${role}`); // Navigate based on role
+    } else {
+      toast({
+        title: "Login failed",
+        description: "Invalid credentials or role. Please try again.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -49,6 +63,24 @@ const Login = () => {
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
+                  <Label>I am a:</Label>
+                  <RadioGroup
+                    value={role}
+                    onValueChange={setRole}
+                    className="flex space-x-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="donor" id="donor" />
+                      <Label htmlFor="donor" className="cursor-pointer">Food Donor</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="receiver" id="receiver" />
+                      <Label htmlFor="receiver" className="cursor-pointer">Food Receiver</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+                
+                <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
@@ -58,6 +90,15 @@ const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
+                  {role === "donor" ? (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Try: contact@greengrocers.com
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Try: info@hopeshelter.org
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -76,6 +117,9 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    For demo, any password will work
+                  </p>
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col">
@@ -89,7 +133,7 @@ const Login = () => {
                 <div className="mt-4 text-center text-sm">
                   Don't have an account?{" "}
                   <Link
-                    to="/register"
+                    to={`/register?role=${role}`}
                     className="font-medium text-brand-green hover:text-brand-green-dark"
                   >
                     Register
