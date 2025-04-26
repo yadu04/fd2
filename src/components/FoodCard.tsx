@@ -47,6 +47,14 @@ const FoodCard = ({
     day: "numeric",
   });
 
+  const isNew = () => {
+    const postDate = new Date(createdAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - postDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 1; // Consider new if posted within last 24 hours
+  };
+
   return (
     <Card className="overflow-hidden h-full flex flex-col">
       <div className="relative h-48 overflow-hidden">
@@ -55,15 +63,21 @@ const FoodCard = ({
           alt={name} 
           className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
         />
-        <Badge 
-          className={`absolute top-2 right-2 ${
-            status === "available" ? "bg-brand-green" : 
-            status === "reserved" ? "bg-brand-orange" : 
-            "bg-gray-500"
-          }`}
-        >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
-        </Badge>
+        <div className="absolute top-2 right-2 flex flex-col gap-2">
+          <Badge 
+            className={`${
+              status === "available" ? "bg-brand-green" : 
+              status === "reserved" ? "bg-brand-orange" : 
+              "bg-gray-500"
+            }`}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </Badge>
+          
+          {isNew() && (
+            <Badge className="bg-blue-500">New</Badge>
+          )}
+        </div>
       </div>
       
       <CardHeader className="p-4 pb-0">

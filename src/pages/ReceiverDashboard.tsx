@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -17,20 +17,45 @@ const ReceiverDashboard = () => {
   const [myReservations, setMyReservations] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
 
   // Simulate fetching data from the "database"
   useEffect(() => {
+    // Get all donations including those just added by donors
+    const allMockData = [...mockFoodData];
+    
+    // Check localStorage for any new donations from donors
+    const newDonationsString = localStorage.getItem('newDonations');
+    let newDonations: any[] = [];
+    
+    if (newDonationsString) {
+      try {
+        newDonations = JSON.parse(newDonationsString);
+        // Combine with mock data
+        allMockData.push(...newDonations);
+      } catch (e) {
+        console.error("Error parsing new donations:", e);
+      }
+    }
+    
     // Filter only available donations
-    const available = mockFoodData.filter(item => item.status === "available");
+    const available = allMockData.filter(item => item.status === "available");
     setAvailableDonations(available);
 
     // For demo purposes, assume the receiver ID is 2
     const receiverId = 2;
-    const reserved = mockFoodData.filter(
+    const reserved = allMockData.filter(
       item => item.status === "reserved" && item.receiverId === receiverId
     );
     setMyReservations(reserved);
-  }, []);
+    
+    // Set up refresh interval to check for new donations
+    const intervalId = setInterval(() => {
+      setLastUpdate(Date.now());
+    }, 10000); // Check every 10 seconds
+    
+    return () => clearInterval(intervalId);
+  }, [lastUpdate]);
 
   const handleReserve = (id: number) => {
     // Update the donation status (in a real app, this would be an API call)
@@ -47,6 +72,20 @@ const ReceiverDashboard = () => {
       
       setAvailableDonations(updatedAvailable);
       setMyReservations(prev => [updatedItem, ...prev]);
+      
+      // Also update localStorage to persist between pages
+      const newDonationsString = localStorage.getItem('newDonations');
+      if (newDonationsString) {
+        try {
+          const newDonations = JSON.parse(newDonationsString);
+          const updatedDonations = newDonations.map((item: any) => 
+            item.id === id ? { ...item, status: "reserved", receiverId: 2, receiverName: "Hope Shelter" } : item
+          );
+          localStorage.setItem('newDonations', JSON.stringify(updatedDonations));
+        } catch (e) {
+          console.error("Error updating reservation in localStorage:", e);
+        }
+      }
       
       toast({
         title: "Food Reserved!",
@@ -70,6 +109,20 @@ const ReceiverDashboard = () => {
       
       setMyReservations(updatedReservations);
       setAvailableDonations(prev => [updatedItem, ...prev]);
+      
+      // Also update localStorage to persist between pages
+      const newDonationsString = localStorage.getItem('newDonations');
+      if (newDonationsString) {
+        try {
+          const newDonations = JSON.parse(newDonationsString);
+          const updatedDonations = newDonations.map((item: any) => 
+            item.id === id ? { ...item, status: "available", receiverId: undefined, receiverName: undefined } : item
+          );
+          localStorage.setItem('newDonations', JSON.stringify(updatedDonations));
+        } catch (e) {
+          console.error("Error updating cancelled reservation in localStorage:", e);
+        }
+      }
       
       toast({
         title: "Reservation Canceled",

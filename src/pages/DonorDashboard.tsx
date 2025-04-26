@@ -21,17 +21,53 @@ const DonorDashboard = () => {
   useEffect(() => {
     // Filter donations by donorId 1 (for demo purposes)
     const donorId = 1; // In a real app, this would come from authentication
-    const filteredDonations = mockFoodData.filter(item => item.donorId === donorId);
-    setMyDonations(filteredDonations);
+    
+    // Get base donations from mockData
+    const baseDonations = mockFoodData.filter(item => item.donorId === donorId);
+    
+    // Check localStorage for any new donations
+    const newDonationsString = localStorage.getItem('newDonations');
+    let allDonations = [...baseDonations];
+    
+    if (newDonationsString) {
+      try {
+        const newDonations = JSON.parse(newDonationsString);
+        // Only include this donor's donations
+        const myNewDonations = newDonations.filter((item: any) => item.donorId === donorId);
+        allDonations = [...baseDonations, ...myNewDonations];
+      } catch (e) {
+        console.error("Error parsing new donations:", e);
+      }
+    }
+    
+    setMyDonations(allDonations);
   }, []);
 
   const handleNewDonation = (donation: any) => {
-    // Add the new donation to the state (in a real app, this would be an API call)
+    // Add the new donation to the state
     setMyDonations(prev => [donation, ...prev]);
+    
+    // Store in localStorage so receivers can see it
+    let newDonations = [];
+    const newDonationsString = localStorage.getItem('newDonations');
+    
+    if (newDonationsString) {
+      try {
+        newDonations = JSON.parse(newDonationsString);
+      } catch (e) {
+        console.error("Error parsing new donations:", e);
+      }
+    }
+    
+    // Add the new donation to the list
+    newDonations.push(donation);
+    localStorage.setItem('newDonations', JSON.stringify(newDonations));
+    
     toast({
       title: "Donation Posted!",
-      description: "Your food donation has been posted successfully.",
+      description: "Your food donation has been posted successfully and is now available for receivers.",
     });
+    
     // Switch to the "My Donations" tab to show the new donation
     setActiveTab("donations");
   };
