@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Clock } from "lucide-react";
 
 interface DonationFormProps {
   onSubmit: (donation: any) => void;
@@ -17,7 +17,8 @@ const DonationForm = ({ onSubmit }: DonationFormProps) => {
     quantity: "",
     expiry: "",
     location: "",
-    image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9" // Default image
+    pickupBefore: "",
+    image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9"
   });
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -53,16 +54,16 @@ const DonationForm = ({ onSubmit }: DonationFormProps) => {
       id: Date.now(),
       createdAt: new Date().toISOString(),
       status: "available",
-      donorId: 1, // Mock donor ID
-      donorName: "Green Grocers" // Mock donor name
+      donorId: 1,
+      donorName: "Green Grocers"
     });
-    // Reset the form
     setDonation({
       name: "",
       description: "",
       quantity: "",
       expiry: "",
       location: "",
+      pickupBefore: "",
       image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9"
     });
     setPreviewImage(null);
@@ -151,6 +152,22 @@ const DonationForm = ({ onSubmit }: DonationFormProps) => {
                 value={donation.expiry}
                 onChange={handleChange}
                 required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="pickupBefore" className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Pickup Before
+              </Label>
+              <Input
+                id="pickupBefore"
+                name="pickupBefore"
+                type="time"
+                value={donation.pickupBefore}
+                onChange={handleChange}
+                required
+                className="w-full"
               />
             </div>
           </div>
