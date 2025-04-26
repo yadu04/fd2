@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,8 +7,9 @@ import Footer from "@/components/Footer";
 import DonationForm from "@/components/DonationForm";
 import FoodCard from "@/components/FoodCard";
 import DonorBadges from "@/components/DonorBadges";
+import NotificationBell from "@/components/notifications/NotificationBell";
+import RequestsList from "@/components/notifications/RequestsList";
 
-// Import mock data
 import mockFoodData from "@/data/foodData.json";
 
 const DonorDashboard = () => {
@@ -17,22 +17,15 @@ const DonorDashboard = () => {
   const [activeTab, setActiveTab] = useState("donate");
   const { toast } = useToast();
 
-  // Simulate fetching donor's donations from the "database"
   useEffect(() => {
-    // Filter donations by donorId 1 (for demo purposes)
-    const donorId = 1; // In a real app, this would come from authentication
-    
-    // Get base donations from mockData
+    const donorId = 1;
     const baseDonations = mockFoodData.filter(item => item.donorId === donorId);
-    
-    // Check localStorage for any new donations
     const newDonationsString = localStorage.getItem('newDonations');
     let allDonations = [...baseDonations];
     
     if (newDonationsString) {
       try {
         const newDonations = JSON.parse(newDonationsString);
-        // Only include this donor's donations
         const myNewDonations = newDonations.filter((item: any) => item.donorId === donorId);
         allDonations = [...baseDonations, ...myNewDonations];
       } catch (e) {
@@ -44,10 +37,7 @@ const DonorDashboard = () => {
   }, []);
 
   const handleNewDonation = (donation: any) => {
-    // Add the new donation to the state
     setMyDonations(prev => [donation, ...prev]);
-    
-    // Store in localStorage so receivers can see it
     let newDonations = [];
     const newDonationsString = localStorage.getItem('newDonations');
     
@@ -59,7 +49,6 @@ const DonorDashboard = () => {
       }
     }
     
-    // Add the new donation to the list
     newDonations.push(donation);
     localStorage.setItem('newDonations', JSON.stringify(newDonations));
     
@@ -68,7 +57,6 @@ const DonorDashboard = () => {
       description: "Your food donation has been posted successfully and is now available for receivers.",
     });
     
-    // Switch to the "My Donations" tab to show the new donation
     setActiveTab("donations");
   };
 
@@ -78,17 +66,20 @@ const DonorDashboard = () => {
       
       <div className="flex-grow bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Donor Dashboard</h1>
-            <p className="text-gray-600 mt-2">
-              Manage your food donations and see the impact you're making.
-            </p>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Donor Dashboard</h1>
+              <p className="text-gray-600 mt-2">
+                Manage your food donations and see the impact you're making.
+              </p>
+            </div>
+            <NotificationBell />
           </div>
           
           <div className="mb-8">
             <DonorBadges 
               donationCount={myDonations.length} 
-              reviewScore={4.5} // This would come from actual reviews in a real app
+              reviewScore={4.5}
             />
           </div>
           
@@ -96,6 +87,7 @@ const DonorDashboard = () => {
             <TabsList className="mb-8">
               <TabsTrigger value="donate">Donate Food</TabsTrigger>
               <TabsTrigger value="donations">My Donations</TabsTrigger>
+              <TabsTrigger value="requests">Requests</TabsTrigger>
               <TabsTrigger value="impact">My Impact</TabsTrigger>
             </TabsList>
             
@@ -148,6 +140,10 @@ const DonorDashboard = () => {
                   </CardContent>
                 </Card>
               )}
+            </TabsContent>
+            
+            <TabsContent value="requests">
+              <RequestsList />
             </TabsContent>
             
             <TabsContent value="impact">
