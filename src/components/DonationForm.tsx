@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { ImagePlus } from "lucide-react";
 
 interface DonationFormProps {
   onSubmit: (donation: any) => void;
@@ -20,12 +20,30 @@ const DonationForm = ({ onSubmit }: DonationFormProps) => {
     image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9" // Default image
   });
 
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setDonation(prev => ({
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const imageUrl = reader.result as string;
+        setPreviewImage(imageUrl);
+        setDonation(prev => ({
+          ...prev,
+          image: imageUrl
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,6 +65,7 @@ const DonationForm = ({ onSubmit }: DonationFormProps) => {
       location: "",
       image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9"
     });
+    setPreviewImage(null);
   };
 
   return (
@@ -59,6 +78,33 @@ const DonationForm = ({ onSubmit }: DonationFormProps) => {
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="foodImage">Food Image</Label>
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative w-full h-48 border-2 border-dashed rounded-lg overflow-hidden">
+                {previewImage ? (
+                  <img
+                    src={previewImage}
+                    alt="Food preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center w-full h-full bg-gray-50">
+                    <ImagePlus className="w-8 h-8 text-gray-400" />
+                    <p className="mt-2 text-sm text-gray-500">Click to upload food image</p>
+                  </div>
+                )}
+                <Input
+                  id="foodImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="name">Food Name</Label>
             <Input
