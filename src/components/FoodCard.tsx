@@ -1,8 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Clock } from "lucide-react";
+import { Calendar, MapPin, Clock, Phone } from "lucide-react";
+import { useState } from "react";
+import VideoCallModal from './video/VideoCallModal';
 
 interface FoodCardProps {
   id: number;
@@ -35,6 +36,9 @@ const FoodCard = ({
   onCancel,
   userRole = "receiver",
 }: FoodCardProps) => {
+  const [isVideoCallModalOpen, setIsVideoCallModalOpen] = useState(false);
+  const [isIncomingCall, setIsIncomingCall] = useState(false);
+
   const formattedDate = new Date(expiry).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -114,34 +118,79 @@ const FoodCard = ({
       <CardFooter className="p-4 pt-2 border-t">
         {userRole === "receiver" ? (
           status === "available" ? (
-            <Button
-              onClick={() => onReserve && onReserve(id)}
-              className="w-full bg-brand-green hover:bg-brand-green-dark"
-            >
-              Reserve
-            </Button>
-          ) : status === "reserved" ? (
-            <Button
-              onClick={() => onCancel && onCancel(id)}
-              variant="outline"
-              className="w-full border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white"
-            >
-              Cancel Reservation
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => onReserve && onReserve(id)}
+                className="flex-1 bg-brand-green hover:bg-brand-green-dark"
+              >
+                Claim
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setIsVideoCallModalOpen(true)}
+                className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+              >
+                <Phone className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : status === "claimed" ? (
+            <div className="flex gap-2">
+              <Button
+                onClick={() => onCancel && onCancel(id)}
+                variant="outline"
+                className="flex-1 border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white"
+              >
+                Cancel Claim
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setIsVideoCallModalOpen(true)}
+                className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+              >
+                <Phone className="h-4 w-4" />
+              </Button>
+            </div>
           ) : (
             <Button disabled className="w-full">
               Not Available
             </Button>
           )
         ) : (
-          <Button
-            variant="outline"
-            className="w-full border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
-          >
-            View Details
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1 border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+            >
+              View Details
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsVideoCallModalOpen(true)}
+              className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+            >
+              <Phone className="h-4 w-4" />
+            </Button>
+          </div>
         )}
       </CardFooter>
+
+      <VideoCallModal
+        isOpen={isVideoCallModalOpen}
+        onClose={() => setIsVideoCallModalOpen(false)}
+        otherPartyName={userRole === "receiver" ? donorName : "Receiver"}
+        isIncomingCall={isIncomingCall}
+        onAcceptCall={() => {
+          setIsIncomingCall(false);
+          // Handle call acceptance
+        }}
+        onRejectCall={() => {
+          setIsIncomingCall(false);
+          // Handle call rejection
+        }}
+      />
     </Card>
   );
 };

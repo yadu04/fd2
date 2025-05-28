@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +13,7 @@ import mockFoodData from "@/data/foodData.json";
 
 const ReceiverDashboard = () => {
   const [availableDonations, setAvailableDonations] = useState<any[]>([]);
-  const [myReservations, setMyReservations] = useState<any[]>([]);
+  const [myClaims, setMyClaims] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const [lastUpdate, setLastUpdate] = useState(Date.now());
@@ -38,16 +37,35 @@ const ReceiverDashboard = () => {
       }
     }
     
-    // Filter only available donations
-    const available = allMockData.filter(item => item.status === "available");
+    // Get current claims from localStorage
+    const currentClaimsString = localStorage.getItem('currentClaims');
+    let currentClaims: any[] = [];
+    
+    if (currentClaimsString) {
+      try {
+        currentClaims = JSON.parse(currentClaimsString);
+      } catch (e) {
+        console.error("Error parsing current claims:", e);
+      }
+    }
+    
+    // Filter out any items that are currently claimed
+    const available = allMockData.filter(item => {
+      // Check if the item is in current claims
+      const isClaimed = currentClaims.some(claim => claim.id === item.id);
+      return item.status === "available" && !isClaimed;
+    });
+    
     setAvailableDonations(available);
 
     // For demo purposes, assume the receiver ID is 2
     const receiverId = 2;
-    const reserved = allMockData.filter(
-      item => item.status === "reserved" && item.receiverId === receiverId
-    );
-    setMyReservations(reserved);
+    const claimed = currentClaims.length > 0 
+      ? currentClaims 
+      : allMockData.filter(
+          item => item.status === "claimed" && item.receiverId === receiverId
+        );
+    setMyClaims(claimed);
     
     // Set up refresh interval to check for new donations
     const intervalId = setInterval(() => {
@@ -57,47 +75,80 @@ const ReceiverDashboard = () => {
     return () => clearInterval(intervalId);
   }, [lastUpdate]);
 
-  const handleReserve = (id: number) => {
-    // Update the donation status (in a real app, this would be an API call)
-    const updatedAvailable = availableDonations.filter(item => item.id !== id);
-    const reservedItem = availableDonations.find(item => item.id === id);
+  const handleClaim = (id: number) => {
+    // Find the donation item
+    const donationItem = availableDonations.find(item => item.id === id);
     
-    if (reservedItem) {
-      const updatedItem = {
-        ...reservedItem,
-        status: "reserved",
+    if (donationItem) {
+      // Update the donation status
+      const updatedAvailable = availableDonations.filter(item => item.id !== id);
+      const claimedItem = {
+        ...donationItem,
+        status: "claimed",
         receiverId: 2, // Mock receiver ID
         receiverName: "Hope Shelter" // Mock receiver name
       };
       
       setAvailableDonations(updatedAvailable);
-      setMyReservations(prev => [updatedItem, ...prev]);
+      setMyClaims(prev => [claimedItem, ...prev]);
       
-      // Also update localStorage to persist between pages
+      // Update localStorage to persist between pages
       const newDonationsString = localStorage.getItem('newDonations');
       if (newDonationsString) {
         try {
           const newDonations = JSON.parse(newDonationsString);
           const updatedDonations = newDonations.map((item: any) => 
-            item.id === id ? { ...item, status: "reserved", receiverId: 2, receiverName: "Hope Shelter" } : item
+            item.id === id ? { ...item, status: "claimed", receiverId: 2, receiverName: "Hope Shelter" } : item
           );
           localStorage.setItem('newDonations', JSON.stringify(updatedDonations));
         } catch (e) {
-          console.error("Error updating reservation in localStorage:", e);
+          console.error("Error updating claim in localStorage:", e);
         }
       }
       
+      // Store current claims in localStorage
+      const currentClaims = [...myClaims, claimedItem];
+      localStorage.setItem('currentClaims', JSON.stringify(currentClaims));
+
+      // Create notification for the donor
+      const notificationsString = localStorage.getItem('notifications');
+      let notifications = [];
+      if (notificationsString) {
+        try {
+          notifications = JSON.parse(notificationsString);
+        } catch (e) {
+          console.error("Error parsing notifications:", e);
+        }
+      }
+
+      // Create new notification
+      const newNotification = {
+        id: Date.now(),
+        message: `Your food donation "${claimedItem.name}" has been claimed by ${claimedItem.receiverName}`,
+        type: "claim",
+        read: false,
+        timestamp: new Date().toISOString(),
+        foodId: id,
+        foodName: claimedItem.name,
+        quantity: claimedItem.quantity,
+        location: claimedItem.location,
+        receiverName: claimedItem.receiverName
+      };
+      
+      notifications.unshift(newNotification);
+      localStorage.setItem('notifications', JSON.stringify(notifications));
+      
       toast({
-        title: "Food Reserved!",
-        description: `You have successfully reserved ${reservedItem.name}`,
+        title: "Food Claimed!",
+        description: `You have successfully claimed ${donationItem.name}`,
       });
     }
   };
 
-  const handleCancelReservation = (id: number) => {
-    // Update the donation status (in a real app, this would be an API call)
-    const updatedReservations = myReservations.filter(item => item.id !== id);
-    const canceledItem = myReservations.find(item => item.id === id);
+  const handleCancelClaim = (id: number) => {
+    // Update the donation status
+    const updatedClaims = myClaims.filter(item => item.id !== id);
+    const canceledItem = myClaims.find(item => item.id === id);
     
     if (canceledItem) {
       const updatedItem = {
@@ -107,10 +158,10 @@ const ReceiverDashboard = () => {
         receiverName: undefined
       };
       
-      setMyReservations(updatedReservations);
+      setMyClaims(updatedClaims);
       setAvailableDonations(prev => [updatedItem, ...prev]);
       
-      // Also update localStorage to persist between pages
+      // Update localStorage to persist between pages
       const newDonationsString = localStorage.getItem('newDonations');
       if (newDonationsString) {
         try {
@@ -120,13 +171,16 @@ const ReceiverDashboard = () => {
           );
           localStorage.setItem('newDonations', JSON.stringify(updatedDonations));
         } catch (e) {
-          console.error("Error updating cancelled reservation in localStorage:", e);
+          console.error("Error updating cancelled claim in localStorage:", e);
         }
       }
       
+      // Update current claims in localStorage
+      localStorage.setItem('currentClaims', JSON.stringify(updatedClaims));
+      
       toast({
-        title: "Reservation Canceled",
-        description: `You have canceled your reservation for ${canceledItem.name}`,
+        title: "Claim Canceled",
+        description: `You have canceled your claim for ${canceledItem.name}`,
       });
     }
   };
@@ -148,14 +202,14 @@ const ReceiverDashboard = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Receiver Dashboard</h1>
             <p className="text-gray-600 mt-2">
-              Find and request food donations from local providers.
+              Find and claim food donations from local providers.
             </p>
           </div>
           
           <Tabs defaultValue="available">
             <TabsList className="mb-8">
               <TabsTrigger value="available">Available Donations</TabsTrigger>
-              <TabsTrigger value="reserved">My Reservations</TabsTrigger>
+              <TabsTrigger value="claimed">My Claims</TabsTrigger>
             </TabsList>
             
             <TabsContent value="available" className="space-y-8">
@@ -178,7 +232,7 @@ const ReceiverDashboard = () => {
                     <FoodCard 
                       key={donation.id} 
                       {...donation} 
-                      onReserve={handleReserve}
+                      onReserve={handleClaim}
                     />
                   ))}
                 </div>
@@ -195,14 +249,14 @@ const ReceiverDashboard = () => {
               )}
             </TabsContent>
             
-            <TabsContent value="reserved">
-              {myReservations.length > 0 ? (
+            <TabsContent value="claimed">
+              {myClaims.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {myReservations.map((donation) => (
+                  {myClaims.map((donation) => (
                     <FoodCard 
                       key={donation.id} 
                       {...donation} 
-                      onCancel={handleCancelReservation}
+                      onCancel={handleCancelClaim}
                     />
                   ))}
                 </div>
@@ -210,7 +264,7 @@ const ReceiverDashboard = () => {
                 <Card>
                   <CardContent className="py-10 text-center">
                     <p className="text-gray-500">
-                      You haven't reserved any donations yet. Browse the available donations to make a reservation.
+                      You haven't claimed any donations yet. Browse the available donations to make a claim.
                     </p>
                   </CardContent>
                 </Card>

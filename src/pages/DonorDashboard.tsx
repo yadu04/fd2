@@ -16,6 +16,7 @@ const DonorDashboard = () => {
   const [myDonations, setMyDonations] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("donate");
   const { toast } = useToast();
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
 
   useEffect(() => {
     const donorId = 1;
@@ -34,7 +35,26 @@ const DonorDashboard = () => {
     }
     
     setMyDonations(allDonations);
-  }, []);
+
+    // Set up refresh interval to check for new notifications
+    const intervalId = setInterval(() => {
+      const notificationsString = localStorage.getItem('notifications');
+      if (notificationsString) {
+        try {
+          const notifications = JSON.parse(notificationsString);
+          // Update the notification bell if there are new notifications
+          if (notifications.length > 0) {
+            // Force a re-render of the notification bell
+            setLastUpdate(Date.now());
+          }
+        } catch (e) {
+          console.error("Error parsing notifications:", e);
+        }
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(intervalId);
+  }, [lastUpdate]);
 
   const handleNewDonation = (donation: any) => {
     setMyDonations(prev => [donation, ...prev]);
