@@ -112,7 +112,7 @@ const NotificationBell = () => {
                       </div>
                     )}
                     <p className="text-xs text-gray-400 mt-1">
-                      {new Date(notification.timestamp).toLocaleString()}
+                  {new Date(notification.timestamp).toLocaleString()}
                     </p>
                   </div>
                   {!notification.read && (

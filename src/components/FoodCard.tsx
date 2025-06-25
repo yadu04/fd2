@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Clock, Phone } from "lucide-react";
+import { Calendar, MapPin, Clock, Phone, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import VideoCallModal from './video/VideoCallModal';
+import MessageModal from './messaging/MessageModal';
 
 interface FoodCardProps {
   id: number;
@@ -13,12 +14,14 @@ interface FoodCardProps {
   expiry: string;
   location: string;
   donorName: string;
+  donorId: number;
+  receiverId?: number;
   status: string;
   image: string;
   createdAt: string;
   onReserve?: (id: number) => void;
   onCancel?: (id: number) => void;
-  userRole?: string;
+  userRole?: "donor" | "receiver";
 }
 
 const FoodCard = ({
@@ -29,6 +32,8 @@ const FoodCard = ({
   expiry,
   location,
   donorName,
+  donorId,
+  receiverId,
   status,
   image,
   createdAt,
@@ -37,6 +42,7 @@ const FoodCard = ({
   userRole = "receiver",
 }: FoodCardProps) => {
   const [isVideoCallModalOpen, setIsVideoCallModalOpen] = useState(false);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [isIncomingCall, setIsIncomingCall] = useState(false);
 
   const formattedDate = new Date(expiry).toLocaleDateString("en-US", {
@@ -128,6 +134,14 @@ const FoodCard = ({
               <Button
                 variant="outline"
                 size="icon"
+                onClick={() => setIsMessageModalOpen(true)}
+                className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+              >
+                <MessageSquare className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => setIsVideoCallModalOpen(true)}
                 className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
               >
@@ -146,6 +160,14 @@ const FoodCard = ({
               <Button
                 variant="outline"
                 size="icon"
+                onClick={() => setIsMessageModalOpen(true)}
+                className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+              >
+                <MessageSquare className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => setIsVideoCallModalOpen(true)}
                 className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
               >
@@ -159,11 +181,19 @@ const FoodCard = ({
           )
         ) : (
           <div className="flex gap-2">
+          <Button
+            variant="outline"
+              className="flex-1 border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+          >
+            View Details
+          </Button>
             <Button
               variant="outline"
-              className="flex-1 border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
+              size="icon"
+              onClick={() => setIsMessageModalOpen(true)}
+              className="border-brand-green text-brand-green hover:bg-brand-green hover:text-white"
             >
-              View Details
+              <MessageSquare className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
@@ -190,6 +220,17 @@ const FoodCard = ({
           setIsIncomingCall(false);
           // Handle call rejection
         }}
+      />
+
+      <MessageModal
+        isOpen={isMessageModalOpen}
+        onClose={() => setIsMessageModalOpen(false)}
+        currentUserId={userRole === "donor" ? donorId : receiverId || 2}
+        otherUserId={userRole === "donor" ? receiverId || 2 : donorId}
+        foodId={id}
+        foodName={name}
+        otherUserName={userRole === "donor" ? "Receiver" : donorName}
+        currentUserName={userRole === "donor" ? donorName : "Receiver"}
       />
     </Card>
   );

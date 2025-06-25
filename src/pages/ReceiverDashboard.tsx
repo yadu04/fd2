@@ -17,6 +17,7 @@ const ReceiverDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const [lastUpdate, setLastUpdate] = useState(Date.now());
+  const receiverId = 2; // Mock receiver ID
 
   // Simulate fetching data from the "database"
   useEffect(() => {
@@ -59,12 +60,11 @@ const ReceiverDashboard = () => {
     setAvailableDonations(available);
 
     // For demo purposes, assume the receiver ID is 2
-    const receiverId = 2;
     const claimed = currentClaims.length > 0 
       ? currentClaims 
       : allMockData.filter(
           item => item.status === "claimed" && item.receiverId === receiverId
-        );
+    );
     setMyClaims(claimed);
     
     // Set up refresh interval to check for new donations
@@ -233,6 +233,9 @@ const ReceiverDashboard = () => {
                       key={donation.id} 
                       {...donation} 
                       onReserve={handleClaim}
+                      userRole="receiver"
+                      donorId={donation.donorId}
+                      receiverId={receiverId}
                     />
                   ))}
                 </div>
@@ -257,6 +260,9 @@ const ReceiverDashboard = () => {
                       key={donation.id} 
                       {...donation} 
                       onCancel={handleCancelClaim}
+                      userRole="receiver"
+                      donorId={donation.donorId}
+                      receiverId={receiverId}
                     />
                   ))}
                 </div>

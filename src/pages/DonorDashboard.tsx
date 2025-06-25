@@ -148,6 +148,7 @@ const DonorDashboard = () => {
                       key={donation.id} 
                       {...donation} 
                       userRole="donor"
+                      donorId={1}
                     />
                   ))}
                 </div>
