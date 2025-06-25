@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "vite_react_shadcn_ts",
   "private": true,
   "version": "0.0.0",
@@ -82,5 +83,10 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.18"
+=======
+  "dependencies": {
+    "@react-google-maps/api": "^2.20.6",
+    "@types/google.maps": "^3.58.1"
+>>>>>>> 86d83dd7ddd24ac317ecc814de24b79000ce306f
   }
 }
